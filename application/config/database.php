@@ -1,9 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-//$active_group = 'default';
-//$active_group = 'staging';
-$active_group = 'localhost';
+$active_group = 'sqlsrv';
 $query_builder = TRUE;
 
 
@@ -37,11 +35,6 @@ $db['essl'] = array(
 
 $db['sqlsrv'] = array(
 	'dsn'	=> '',
-// 	'hostname' => '192.168.25.2,4050',
-//     'username' => 'ibcportal',
-//     'password' => 'portal@ibc24',
-	
-    
     'hostname' => '192.168.25.13',
     'username' => 'sa',
     'password' => 'ibc24@123',
