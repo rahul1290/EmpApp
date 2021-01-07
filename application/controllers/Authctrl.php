@@ -7,10 +7,14 @@ class Authctrl extends REST_Controller {
     public function __construct(){
         parent::__construct();
         $this->load->database();
-        $this->load->model(array('Auth_model','Emp_model','master/Department_model'));
+        $this->load->model(array('Auth_model','Emp_model','Department_model'));
 		$this->load->library(array('Authorization_Token','my_library'));
     }
 	
+    function index_get(){
+        echo "This is version V1";
+    }
+    
 	function login_post(){
 		$data['identity'] = trim($this->post('identity'));
 		$data['password'] = base64_encode(trim($this->post('password')));

@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 $route = array(); 
 
-$route['default_controller'] = 'auth';
+$route['default_controller'] = 'Authctrl';
 $route['404_override'] = '';
 
 ////////////////////////////////////APIS/////////////////////////////////////
