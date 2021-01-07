@@ -58,9 +58,10 @@ class Department_model extends CI_Model {
 	
 	
 	function get_employee_department($ecode){
-		$this->db->select('dm.*');
-		$this->db->join('department_master dm','dm.id = ud.dep_id');
-		$result = $this->db->get_where('user_department ud',array('ud.ecode'=>$ecode,'ud.status'=>1))->result_array();
-		return $result;
+		$this->db->select('ROW_NUMBER() OVER(ORDER BY DeptName) AS id,dcode.DeptName as dept_name');
+		$this->db->join('DeptCodeTbl dcode','dcode.DeptName = l.Dept');
+		$result = $this->db->get_where('LoginKRA l',array('l.EmpCode'=>$ecode,'l.Code <>'=>'NA'))->result_array();
+
+		return $result = array(array('id'=>1,'dept_name'=>'IT'),array('id'=>2,'dept_name'=>'IT2'));
 	}
 }

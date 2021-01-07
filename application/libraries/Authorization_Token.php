@@ -91,7 +91,8 @@ class Authorization_Token
                 if(!empty($token_decode) AND is_object($token_decode))
                 {
                     // Check User ID (exists and numeric)
-                    if(empty($token_decode->id) OR !is_numeric($token_decode->id)) 
+                    //if(empty($token_decode->id) OR !is_numeric($token_decode->id))
+                    if(empty($token_decode->id))
                     {
                         return ['status' => FALSE, 'message' => 'User ID Not Define!'];
                     // Check Token Time
@@ -155,7 +156,8 @@ class Authorization_Token
                     if(!empty($token_decode) AND is_object($token_decode))
                     {
                         // Check User ID (exists and numeric)
-                        if(empty($token_decode->id) OR !is_numeric($token_decode->id)) 
+                        //if(empty($token_decode->id) OR !is_numeric($token_decode->id))
+                        if(empty($token_decode->id))
                         {
                             return ['status' => FALSE, 'message' => 'User ID Not Define!'];
     

@@ -21,11 +21,11 @@ class Authctrl extends REST_Controller {
 		
 		$login_result = $this->Auth_model->login($data);
 		if(count($login_result) > 0){
-			$jwt['id'] = $login_result[0]['id'];
-			$jwt['ecode'] = $login_result[0]['ecode'];
+			$jwt['id'] = $login_result[0]['EmpCode'];
+			$jwt['ecode'] = $login_result[0]['EmpCode'];
 			$jwt['time'] = time();
 			$login_result[0]['key'] = $this->authorization_token->generateToken($jwt);
-			$login_result[0]['links'] = $this->my_library->links($login_result[0]['ecode']);
+			//$login_result[0]['links'] = $this->my_library->links($login_result[0]['EmpCode']);
 		    $this->response($login_result, 200);
 		} else {
 		    $this->response( [
@@ -53,11 +53,10 @@ class Authctrl extends REST_Controller {
 	    }
 	}
 	
-	function userDetail_post(){
+	function userDetail_get(){
 	    $is_valid_token = $this->authorization_token->validateToken();
 	    if(!empty($is_valid_token) && $is_valid_token['status'] === true){
-	        $data['ecode'] = $this->post('identity');
-	        $user_detail = $this->Auth_model->userDetail($data);
+	        $user_detail = $this->Auth_model->userDetail($is_valid_token['data']->ecode);
 	        if(count($user_detail) > 0){
 	            $this->response($user_detail,200);
 	        } else {
@@ -109,25 +108,27 @@ class Authctrl extends REST_Controller {
 	    }
 	}
 	
-	function attendance_post(){
+	function attendance_get(){
 		$is_valid_token = $this->authorization_token->validateToken();
 		if(!empty($is_valid_token) && $is_valid_token['status'] === true){
 		
-			if($this->post('department') != ''){	
+			if($this->post('department') != ''){
 				$data['department'] = $this->post('department');
 				$data['paycode'] = $this->post('employee');
 				$month = $this->post('month');
 				$year = $this->post('year');
 				
-				$data['paycode'] = $this->my_library->get_paycode($data['paycode']);
+				    $this->db->select('PAYCODE');
+				    $result = $this->db->get_where('LoginKRA',array('EmpCode'=>$is_valid_token['data']->ecode))->result_array();
+				
+				$data['paycode'] = $result[0]['PAYCODE'];
 				$data['from_date'] = $year.'-'.$month.'-01';
 				$data['to_date'] = date($year.'-'.$month.'-'.date('t',strtotime($data['from_date'])));
 			} else {
-				$this->db->select('department_id');
-				$userdepartment = $this->db->get_where('users',array('ecode'=>$is_valid_token['data']->ecode,'status'=>1))->result_array();
-				
-				$data['department'] = $userdepartment[0]['department_id'];
-				$data['paycode'] = $this->my_library->get_paycode($is_valid_token['data']->ecode);
+    			    $this->db->select('PAYCODE');
+    			    $result = $this->db->get_where('LoginKRA',array('EmpCode'=>$is_valid_token['data']->ecode))->result_array();
+    			    
+				$data['paycode'] =  $result[0]['PAYCODE'];
 				$data['from_date'] = date('Y-m'.'-01');
 				$data['to_date'] = date('Y-m-t');	
 			}
@@ -136,11 +137,11 @@ class Authctrl extends REST_Controller {
 				$app_attendance = array();
 				foreach($results as $result){
 					$temp = array();
-					$temp['Paycode'] = $result['PAYCODE'];	
-					$temp['Date'] =  $result['DateOFFICE'];
-					$temp['InTime'] = $result['IN1']; 
-					$temp['OutTime'] = $result['OUT2'];
-					$temp['Shift'] = $result['SHIFT'];
+					$temp['Paycode'] = trim($result['PAYCODE']);	
+					$temp['Date'] =  trim($result['DateOFFICE']);
+					$temp['InTime'] = trim($result['IN1']); 
+					$temp['OutTime'] = trim($result['OUT2']);
+					$temp['Shift'] = trim($result['SHIFT']);
 					$app_attendance[] = $temp;
 				}
 				$this->response($app_attendance, 200);
@@ -189,4 +190,77 @@ class Authctrl extends REST_Controller {
 	    }
 	    $this->response($data, 200);
 	}
+	
+	function rahul_get(){
+	    $ecode = 'SBMMPL-00005';
+	    $userCode = $this->db->query("Select code,code2,Dept, Name,EmailId from LoginKRA where EMpCode = '$ecode'")->result_array();
+	    
+	    if ($userCode[0]['code'] == "E"){
+	        if ($userCode[0]['code2'] == "HR"){
+	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
+	        } else {
+	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
+	        }
+	        if($ecode == "SBMMPL-00665"){
+	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' ";
+	        }
+	        if($ecode == "SBMMPL-00695" || $ecode == "SBMMPL-00782"){
+	           $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
+	        }
+	        if($ecode == "SBMMPL-00175"){
+	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' union Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='Marketing'  ";
+	        }
+	    }
+	    else if($userCode[0]['code'] == 'H'){
+	        if ($userCode[0]['Dept'] == "GRAPHICS/ PROMO "){
+	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
+	        }
+	        else if ($userCode[0]['Dept'] == "OUTPUT " And $userCode[0]['code2'] == "H"){
+	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' or DeptName = 'GRAPHICS/ PROMO ' or DeptName = 'SOCIAL MEDIA'";
+	        }
+	        else if ($userCode[0]['Dept'] == "EDITORIAL" And $userCode[0]['code2'] == "H"){
+	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' or DeptName = 'GRAPHICS/ PROMO ' or DeptName = 'OUTPUT ' or DeptName = 'SOCIAL MEDIA'";
+	        }
+	        else if ($userCode[0]['Dept'] == "OUTPUT " And $userCode[0]['code2'] == "E"){
+	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
+	        }
+	        else if ($userCode[0]['Dept'] == "CITY SALES"){
+	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' or DeptName = 'EMERGING MARKETING'";
+	        }
+	        else if ($userCode[0]['Dept'] == "FINANCE"){
+	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
+	        }
+	        else if ($userCode[0]['Dept'] = "EDITOR"){
+	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='INPUT' or DeptName = 'OUTPUT ' or DeptName = 'EDITOR'";
+	        }
+	        else if ($userCode[0]['Dept'] == "GOVT. SALES"){
+	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='GOVT. SALES' or DeptName = 'MP SALES' or DeptName = 'CITY SALES' or DeptName = 'MARKETING' OR DeptName = 'EMERGING MARKETING'";
+	        }
+	        else if ($userCode[0]['Dept'] == "COO"){
+	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl ";
+	        }
+	        else if($userCode[0]['Dept'] == 'HUMAN RESOURCE'){
+	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
+	        }
+	        else{
+	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
+	        }
+	    }
+	    else if($userCode[0]['code'] == "C"){
+	       $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
+	    }
+	    else if ($userCode[0]['Dept'] == "MD" || $userCode[0]['Dept'] == "Chairman"){
+	       $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='CEO'";
+	    }
+	    
+	    $result = $this->db->query($cmd)->result_array();
+	    print_r($result);
+    }
+	    
+	
 }
+
+
+
+
+

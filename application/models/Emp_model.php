@@ -20,51 +20,13 @@ class Emp_model extends CI_Model {
 	}
 	
 	function get_employee($ecode,$dept_id = null){
-		$this->db->select('u.ecode,u.id,u.name,u.password,u.department_id');
-		$this->db->join('users u','u.ecode = ur.r_ecode');
-		if($dept_id != null){
-			$this->db->where('u.department_id',$dept_id);
-		}
-		$result = $this->db->get_where('user_rules ur',array('ur.ecode'=>$ecode,'ur.status'=>1))->result_array();
-		return $result;
+        $this->db->select('EmpCode as ecode,Name as name');
+        return $result = $this->db->get_where('LoginKRA',array('EmpCode'=>$ecode,'Code <>'=>'NA'))->result_array();
 	}
 	
 	
-// 	function attendance($data){
-// 	    $db2 = $this->load->database('essl', TRUE);
-// 	    $db2->select('*,CONVERT(VARCHAR(10), CreatedDate, 105) as date,CONVERT(VARCHAR(5), CreatedDate, 108) as time');
-// 	    $db2->where(array('CreatedDate >='=>$data['from_date'],'CreatedDate <='=>$data['to_date']));
-// 	    $db2->order_by('CreatedDate','asc');
-// 	    $db2->limit(1);
-// 	    $inpunchs = $db2->get_where('DeviceLogs_6_2020',array('UserId'=>$data['paycode']))->result_array();
-	    
-// 	    $db2 = $this->load->database('essl', TRUE);
-// 	    $db2->select('*,CONVERT(VARCHAR(10), CreatedDate, 105) as date,CONVERT(VARCHAR(5), CreatedDate, 108) as time');
-// 	    $db2->where(array('CreatedDate >='=>$data['from_date'],'CreatedDate <='=>$data['to_date']));
-// 	    $db2->order_by('CreatedDate','desc');
-// 	    $db2->limit(1);
-// 	    $outpunchs = $db2->get_where('DeviceLogs_6_2020',array('UserId'=>$data['paycode']))->result_array();
-	    
-// 	    $finalarray = array();
-// 	    foreach($inpunchs as $inpunch){
-// 	        $temp = $inpunch;
-// 	        foreach($outpunchs as $outpunch){
-// 	            if($inpunch['date'] == $outpunch['date']){
-// 	                $temp['DateOFFICE'] = $inpunch['date'];
-// 	                $temp['SHIFT'] = 'F';
-// 	                $temp['IN1'] = $inpunch['time'];
-// 	                $temp['OUT2'] = $outpunch['time'];
-// 	                $temp['LATEARRIVAL'] = '';
-// 	                $temp['HOURSWORKED'] = '';
-// 	            }
-// 	        }
-// 	        $finalarray[] = $temp;
-// 	    }
-// 	    return $finalarray;
-// 	}
-	
 	function attendance($data){
-		$db2 = $this->load->database('sqlsrv', TRUE);
+		$db2 = $this->load->database('savior', TRUE);
 		$db2->select("tblr.*,convert(varchar, tblr.DateOFFICE, 103) as DateOFFICE,
 							ISNULL(substring(CONVERT(VARCHAR,tblr.IN1, 108), 0, 6),'') AS IN1, 
 							ISNULL(substring(CONVERT(VARCHAR,tblr.OUT2, 108), 0, 6),'') AS OUT2,
@@ -97,9 +59,8 @@ class Emp_model extends CI_Model {
 								END
 							END) as HOURSWORKED");
 		//$this->db->join($this->config->item('NEWZ36').'LoginKRA l','l.PAYCODE = tblr.PAYCODE');
-		$db2->where(array('tblr.DateOFFICE >='=>$data['from_date'],'tblr.DateOFFICE <='=>$data['to_date']));
-		$result = $db2->get_where($this->config->item('Savior').'tblTimeRegister tblr',array('tblr.PAYCODE'=>$data['paycode']))->result_array();
-		
+		$db2->where(array('DateOFFICE >='=>$data['from_date'],'DateOFFICE <='=>$data['to_date']));
+		$result = $db2->get_where('tblTimeRegister tblr',array('PAYCODE'=>$data['paycode']))->result_array();
 		return $result;
 	}
 	

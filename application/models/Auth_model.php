@@ -5,16 +5,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Auth_model extends CI_Model {
 	
 	function login($data){
-		$this->db->select('u.ecode,u.id,u.name,u.password,u.department_id,ui.image');
-		$this->db->join('user_info ui','ui.ecode = u.ecode');
-		$result = $this->db->get_where('users u',array('u.ecode'=>$data['identity'],'u.password'=>$data['password'],'u.status'=>1))->result_array();
+		$this->db->select('*');
+		$result = $this->db->get_where('LoginKRA',array('EmpCode'=>$data['identity'],'Pwd'=>$data['password'],'Code <>'=>'NA'))->result_array();
 		return $result;
 	}
 	
 	function userDetail($data){
-	    $this->db->select('u.name,ui.company_mailid,ui.image');
-	    $this->db->join('user_info ui','ui.ecode = u.ecode');
-	    $result = $this->db->get_where('users u',array('u.is_active'=>'YES','u.ecode'=>$data['ecode'],'u.status'=>1))->result_array();
+	    $this->db->select('Name as name,EmailID as company_mailid,PImg as image');
+	    $result = $this->db->get_where('LoginKRA',array('Code <>'=>'NA','EmpCode' => $data))->result_array();
 	    return $result;
 	}
 }

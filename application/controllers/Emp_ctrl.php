@@ -79,14 +79,16 @@ class Emp_ctrl extends REST_Controller {
         }
     }
     
-    function Attendance_post(){
+    function Attendance_get(){
         $is_valid_token = $this->authorization_token->validateToken();
         if(!empty($is_valid_token) && $is_valid_token['status'] === true){
             
+            $this->db->select('PAYCODE');
+            $result = $this->db->get_where('LoginKRA',array('EmpCode'=>$is_valid_token['data']->ecode))->result_array();
             
-            $payCode = $this->my_library->get_paycode($is_valid_token['data']->ecode);            
+            $payCode = $result[0]['PAYCODE'];
+            
             $date = $this->post('date');
-            
             $this->saviorDB->select('PAYCODE,HOURSWORKED,convert(char(5), IN1, 108)as IN1,convert(char(5), OUT2, 108)as OUT2');
             $result = $this->saviorDB->get_where('Savior.dbo.tblTimeRegister',array('PAYCODE'=>$payCode,'DateOFFICE'=>$date))->result_array();
             
