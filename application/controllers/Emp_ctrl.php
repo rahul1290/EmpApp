@@ -79,7 +79,7 @@ class Emp_ctrl extends REST_Controller {
         }
     }
     
-    function Attendance_get(){
+    function Attendance_post(){
         $is_valid_token = $this->authorization_token->validateToken();
         if(!empty($is_valid_token) && $is_valid_token['status'] === true){
             
@@ -88,11 +88,13 @@ class Emp_ctrl extends REST_Controller {
             
             $payCode = $result[0]['PAYCODE'];
             
-            $date = $this->post('date');
+            $x = explode('/',$this->post('date'));
+            $date = $x[2].'-'.$x[1].'-'.$x[0];
+            
             $this->saviorDB->select('PAYCODE,HOURSWORKED,convert(char(5), IN1, 108)as IN1,convert(char(5), OUT2, 108)as OUT2');
             $result = $this->saviorDB->get_where('Savior.dbo.tblTimeRegister',array('PAYCODE'=>$payCode,'DateOFFICE'=>$date))->result_array();
             
-            if(count($result)>0){
+            if((count($result)>0) && ($result[0]['IN1'] != null)){
                 $data['in_time'] = $result[0]['IN1'];
                 $data['out_time'] = $result[0]['OUT2'];
                 $data['hours']  = intdiv($result[0]['HOURSWORKED'], 60).' Hours '. ($result[0]['HOURSWORKED'] % 60).' Minutes';
@@ -187,20 +189,78 @@ class Emp_ctrl extends REST_Controller {
         }
     }
     
-    function NhfhList_get(){
+    function nhfh_post(){
         $is_valid_token = $this->authorization_token->validateToken();
         if(!empty($is_valid_token) && $is_valid_token['status'] === true){
-
-            $result = $this->db2->query("Select convert(varchar(50),HDate,103) +' ('+ Description +')' as HDate1,convert(varchar(10),HDate,103) as HDate from NHFHList where HDate < GETDATE() and HDate not in (select date1  from NHFHDetail where EmpCode = '".$is_valid_token['data']->ecode."' and status <> 'X') and year(hdate)='2020'")->result_array();
-            if(count($result)>0){
-                $this->response($result,200);
-            } else {
-                $data['msg'] = "No record found.";
-                $this->response($data,500);
-            }
-        } else {
+           
+            $requirement = trim($this->post('requirement')); 
+            $x = explode('/',$this->post('date'));
+            $date = $x[2].'-'.$x[1].'-'.$x[0];
+            
+            $this->db->trans_begin();
+            
+                $this->db->select('l.EmpCode,d.DeptCode,l.Dept,l.Name,l.Code,l.Code2');
+                $this->db->join('DeptCodeTbl d','l.Dept = d.DeptName');
+                $userDep = $this->db->get_where('LoginKRA l',array('l.EmpCode'=>$is_valid_token['data']->ecode))->result_array(); 
+                 
+                $this->db->select('max(Sno)+1 as max');
+                $result = $this->db->get('NHFHDetail')->result_array();
+                $max = $result[0]['max'];
+                
+                $Id = 'NHFH/'.date('Y').'/'.$userDep[0]['DeptCode'].'/'.$max;            
+        
+                $sql = "insert into NHFHDetail (ID, Name, EmpCode, Department, workoffday, Requirement, Date1, Code, Status, code2,AppDate) values('".$Id."','".$userDep[0]['Name']."','".$is_valid_token['data']->ecode."','".$userDep[0]['Dept']."','','".$requirement."','".$date."','".$userDep[0]['Code']."','R','".$userDep[0]['Code2']."','".date('Y-m-d')."')";
+                $this->db->query($sql);
+                if ($this->db->trans_status() === FALSE){
+                    $this->db->trans_rollback();
+                    $data['msg'] = "something wrong";
+                    $this->response($data,500);
+                } else {
+                    $this->db->trans_commit();
+                    $data['msg'] = "submitted";
+                    $this->response($data,200);
+                }
+        }else {
             $message = ['status' => FALSE,'message' => $is_valid_token['message'] ];
             $this->response($message, 404);
         }
     }
+    
+    function nhfh_avail_post(){
+        $is_valid_token = $this->authorization_token->validateToken();
+        if(!empty($is_valid_token) && $is_valid_token['status'] === true){
+            
+            $reason = trim($this->post('reason'));
+            $x = explode('/',$this->post('date'));
+            $date = $x[2].'-'.$x[1].'-'.$x[0];
+            
+            $this->db->trans_begin();
+            
+            $this->db->select('l.EmpCode,d.DeptCode,l.Dept,l.Name,l.Code,l.Code2');
+            $this->db->join('DeptCodeTbl d','l.Dept = d.DeptName');
+            $userDep = $this->db->get_where('LoginKRA l',array('l.EmpCode'=>$is_valid_token['data']->ecode))->result_array();
+            
+            $this->db->select('max(Sno)+1 as max');
+            $result = $this->db->get('NHFHDetail')->result_array();
+            $max = $result[0]['max'];
+            
+            $Id = 'NHFH/'.date('Y').'/'.$userDep[0]['DeptCode'].'/'.$max;
+            
+            $sql = "insert into NHFHAvail (ID, Name, EmpCode, Department, workoffday, Requirement, Date1, Code, Status, code2,AppDate) values('".$Id."','".$userDep[0]['Name']."','".$is_valid_token['data']->ecode."','".$userDep[0]['Dept']."','".$date."','".$reason."','".$date."','".$userDep[0]['Code']."','R','".$userDep[0]['Code2']."','".date('Y-m-d')."')";
+            $this->db->query($sql);
+            if ($this->db->trans_status() === FALSE){
+                $this->db->trans_rollback();
+                $data['msg'] = "something wrong";
+                $this->response($data,500);
+            } else {
+                $this->db->trans_commit();
+                $data['msg'] = "submitted";
+                $this->response($data,200);
+            }
+        }else {
+            $message = ['status' => FALSE,'message' => $is_valid_token['message'] ];
+            $this->response($message, 404);
+        }
+    }
+
 }

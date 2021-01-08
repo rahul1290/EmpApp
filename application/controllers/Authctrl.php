@@ -155,7 +155,7 @@ class Authctrl extends REST_Controller {
 	}
 	
 	
-	function user_department_get(){
+	function user_department1_get(){
 		$is_valid_token = $this->authorization_token->validateToken();
 		if(!empty($is_valid_token) && $is_valid_token['status'] === true){
 			$department = $this->Department_model->get_employee_department($is_valid_token['data']->ecode);
@@ -191,70 +191,108 @@ class Authctrl extends REST_Controller {
 	    $this->response($data, 200);
 	}
 	
-	function rahul_get(){
-	    $ecode = 'SBMMPL-00005';
-	    $userCode = $this->db->query("Select code,code2,Dept, Name,EmailId from LoginKRA where EMpCode = '$ecode'")->result_array();
-	    
-	    if ($userCode[0]['code'] == "E"){
-	        if ($userCode[0]['code2'] == "HR"){
+	function user_department_get(){
+	    $is_valid_token = $this->authorization_token->validateToken();
+	    if(!empty($is_valid_token) && $is_valid_token['status'] === true){
+	        
+	        $ecode = $is_valid_token['data']->ecode;
+	        $userCode = $this->db->query("Select code,code2,Dept, Name,EmailId from LoginKRA where EMpCode = '$ecode'")->result_array();
+	        
+	        if ($userCode[0]['code'] == "E"){
+	            if ($userCode[0]['code2'] == "HR"){
+	                echo "1";
+	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
+	            } else {
+	                $cmd = "Select Distinct DeptName,ROW_NUMBER() OVER (ORDER BY DeptName) id from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
+	            }
+	            if($ecode == "SBMMPL-00665"){
+	                echo "3";
+	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' ";
+	            }
+	            if($ecode == "SBMMPL-00695" || $ecode == "SBMMPL-00782"){
+	                echo "4";
+	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
+	            }
+	            if($ecode == "SBMMPL-00175"){
+	                echo "5";
+	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' union Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='Marketing'  ";
+	            }
+	        }
+	        else if($userCode[0]['code'] == 'H'){
+	            if ($userCode[0]['Dept'] == "GRAPHICS/ PROMO "){
+	                echo "6";
+	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
+	            }
+	            else if ($userCode[0]['Dept'] == "OUTPUT " And $userCode[0]['code2'] == "H"){
+	                echo "7";
+	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' or DeptName = 'GRAPHICS/ PROMO ' or DeptName = 'SOCIAL MEDIA'";
+	            }
+	            else if ($userCode[0]['Dept'] == "EDITORIAL" And $userCode[0]['code2'] == "H"){
+	                echo "8";
+	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' or DeptName = 'GRAPHICS/ PROMO ' or DeptName = 'OUTPUT ' or DeptName = 'SOCIAL MEDIA'";
+	            }
+	            else if ($userCode[0]['Dept'] == "OUTPUT " And $userCode[0]['code2'] == "E"){
+	                echo "9";
+	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
+	            }
+	            else if ($userCode[0]['Dept'] == "CITY SALES"){
+	                echo "10";
+	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' or DeptName = 'EMERGING MARKETING'";
+	            }
+	            else if ($userCode[0]['Dept'] == "FINANCE"){
+	                echo "11";
+	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
+	            }
+	            else if ($userCode[0]['Dept'] = "EDITOR"){
+	                echo "12";
+	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='INPUT' or DeptName = 'OUTPUT ' or DeptName = 'EDITOR'";
+	            }
+	            else if ($userCode[0]['Dept'] == "GOVT. SALES"){
+	                echo "13";
+	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='GOVT. SALES' or DeptName = 'MP SALES' or DeptName = 'CITY SALES' or DeptName = 'MARKETING' OR DeptName = 'EMERGING MARKETING'";
+	            }
+	            else if ($userCode[0]['Dept'] == "COO"){
+	                echo "14";
+	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl ";
+	            }
+	            else if($userCode[0]['Dept'] == 'HUMAN RESOURCE'){
+	                echo "15";
+	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
+	            }
+	            else{
+	                echo "16";
+	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
+	            }
+	        }
+	        else if($userCode[0]['code'] == "C"){
+	            echo "17";
 	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
-	        } else {
-	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
 	        }
-	        if($ecode == "SBMMPL-00665"){
-	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' ";
+	        else if ($userCode[0]['Dept'] == "MD" || $userCode[0]['Dept'] == "Chairman"){
+	            echo "18";
+	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='CEO'";
 	        }
-	        if($ecode == "SBMMPL-00695" || $ecode == "SBMMPL-00782"){
-	           $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
-	        }
-	        if($ecode == "SBMMPL-00175"){
-	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' union Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='Marketing'  ";
-	        }
+	        
+	        $result = $this->db->query($cmd)->result_array();
+	        $this->response($result, 200);
 	    }
-	    else if($userCode[0]['code'] == 'H'){
-	        if ($userCode[0]['Dept'] == "GRAPHICS/ PROMO "){
-	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
-	        }
-	        else if ($userCode[0]['Dept'] == "OUTPUT " And $userCode[0]['code2'] == "H"){
-	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' or DeptName = 'GRAPHICS/ PROMO ' or DeptName = 'SOCIAL MEDIA'";
-	        }
-	        else if ($userCode[0]['Dept'] == "EDITORIAL" And $userCode[0]['code2'] == "H"){
-	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' or DeptName = 'GRAPHICS/ PROMO ' or DeptName = 'OUTPUT ' or DeptName = 'SOCIAL MEDIA'";
-	        }
-	        else if ($userCode[0]['Dept'] == "OUTPUT " And $userCode[0]['code2'] == "E"){
-	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
-	        }
-	        else if ($userCode[0]['Dept'] == "CITY SALES"){
-	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' or DeptName = 'EMERGING MARKETING'";
-	        }
-	        else if ($userCode[0]['Dept'] == "FINANCE"){
-	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
-	        }
-	        else if ($userCode[0]['Dept'] = "EDITOR"){
-	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='INPUT' or DeptName = 'OUTPUT ' or DeptName = 'EDITOR'";
-	        }
-	        else if ($userCode[0]['Dept'] == "GOVT. SALES"){
-	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='GOVT. SALES' or DeptName = 'MP SALES' or DeptName = 'CITY SALES' or DeptName = 'MARKETING' OR DeptName = 'EMERGING MARKETING'";
-	        }
-	        else if ($userCode[0]['Dept'] == "COO"){
-	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl ";
-	        }
-	        else if($userCode[0]['Dept'] == 'HUMAN RESOURCE'){
-	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
-	        }
-	        else{
-	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
-	        }
-	    }
-	    else if($userCode[0]['code'] == "C"){
-	       $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
-	    }
-	    else if ($userCode[0]['Dept'] == "MD" || $userCode[0]['Dept'] == "Chairman"){
-	       $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='CEO'";
-	    }
-	    
-	    $result = $this->db->query($cmd)->result_array();
-	    print_r($result);
+    }
+    
+    function NhfhList_get(){
+        $is_valid_token = $this->authorization_token->validateToken();
+        if(!empty($is_valid_token) && $is_valid_token['status'] === true){
+            
+            $result = $this->db2->query("Select convert(varchar(50),HDate,103) +' ('+ Description +')' as name,convert(varchar(10),HDate,103) as id from NHFHList where HDate < GETDATE() and HDate not in (select date1  from NHFHDetail where EmpCode = '".$is_valid_token['data']->ecode."' and status <> 'X') and year(hdate)='2020'")->result_array();
+            if(count($result)>0){
+                $this->response($result,200);
+            } else {
+                $data['msg'] = "No record found.";
+                $this->response($data,500);
+            }
+        } else {
+            $message = ['status' => FALSE,'message' => $is_valid_token['message'] ];
+            $this->response($message, 404);
+        }
     }
 	    
 	
