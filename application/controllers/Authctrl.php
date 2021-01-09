@@ -108,30 +108,19 @@ class Authctrl extends REST_Controller {
 	    }
 	}
 	
-	function attendance_get(){
+	function attendance_post(){
 		$is_valid_token = $this->authorization_token->validateToken();
 		if(!empty($is_valid_token) && $is_valid_token['status'] === true){
 		
-			if($this->post('department') != ''){
-				$data['department'] = $this->post('department');
-				$data['paycode'] = $this->post('employee');
-				$month = $this->post('month');
-				$year = $this->post('year');
-				
-				    $this->db->select('PAYCODE');
-				    $result = $this->db->get_where('LoginKRA',array('EmpCode'=>$is_valid_token['data']->ecode))->result_array();
-				
-				$data['paycode'] = $result[0]['PAYCODE'];
-				$data['from_date'] = $year.'-'.$month.'-01';
-				$data['to_date'] = date($year.'-'.$month.'-'.date('t',strtotime($data['from_date'])));
-			} else {
-    			    $this->db->select('PAYCODE');
-    			    $result = $this->db->get_where('LoginKRA',array('EmpCode'=>$is_valid_token['data']->ecode))->result_array();
-    			    
-				$data['paycode'] =  $result[0]['PAYCODE'];
-				$data['from_date'] = date('Y-m'.'-01');
-				$data['to_date'] = date('Y-m-t');	
-			}
+			$ecode = $this->post('empCode');
+		    
+		    $this->db->select('PAYCODE');
+		    $result = $this->db->get_where('LoginKRA',array('EmpCode'=>$ecode))->result_array();
+			    
+			$data['paycode'] =  trim($result[0]['PAYCODE']);
+			$data['from_date'] = date('Y-'.$this->post('month').'-01');
+			$data['to_date'] = date($this->post('year').'-m-t');	
+			
 			$results = $this->Emp_model->attendance($data);
 			if(count($results)>0){
 				$app_attendance = array();
@@ -171,8 +160,11 @@ class Authctrl extends REST_Controller {
 	function user_list_get(){
 	$is_valid_token = $this->authorization_token->validateToken();
 		if(!empty($is_valid_token) && $is_valid_token['status'] === true){
-			$users = $this->Emp_model->get_employee($is_valid_token['data']->ecode);
+			
+		    
+		    $users = $this->Emp_model->get_employee($is_valid_token['data']->ecode);
 			$this->response($users, 200);
+			
 		} else {
 			$this->response( [
 		        'status' => 500,
@@ -200,88 +192,153 @@ class Authctrl extends REST_Controller {
 	        
 	        if ($userCode[0]['code'] == "E"){
 	            if ($userCode[0]['code2'] == "HR"){
-	                //echo "1";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
 	            } else {
 	                $cmd = "Select Distinct DeptName,ROW_NUMBER() OVER (ORDER BY DeptName) id from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
 	            }
 	            if($ecode == "SBMMPL-00665"){
-	                //echo "3";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' ";
 	            }
 	            if($ecode == "SBMMPL-00695" || $ecode == "SBMMPL-00782"){
-	                //echo "4";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
 	            }
 	            if($ecode == "SBMMPL-00175"){
-	                //echo "5";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' union Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='Marketing'  ";
 	            }
 	        }
 	        else if($userCode[0]['code'] == 'H'){
 	            if ($userCode[0]['Dept'] == "GRAPHICS/ PROMO "){
-	                //echo "6";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
 	            }
 	            else if ($userCode[0]['Dept'] == "OUTPUT " And $userCode[0]['code2'] == "H"){
-	                //echo "7";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' or DeptName = 'GRAPHICS/ PROMO ' or DeptName = 'SOCIAL MEDIA'";
 	            }
 	            else if ($userCode[0]['Dept'] == "EDITORIAL" And $userCode[0]['code2'] == "H"){
 	                $cmd = "Select Distinct DeptName,ROW_NUMBER() OVER (ORDER BY DeptName) id from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' or DeptName = 'GRAPHICS/ PROMO ' or DeptName = 'OUTPUT ' or DeptName = 'SOCIAL MEDIA'";
 	            }
 	            else if ($userCode[0]['Dept'] == "OUTPUT " And $userCode[0]['code2'] == "E"){
-	                //echo "9";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
 	            }
 	            else if ($userCode[0]['Dept'] == "CITY SALES"){
-	                //echo "10";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' or DeptName = 'EMERGING MARKETING'";
 	            }
 	            else if ($userCode[0]['Dept'] == "FINANCE"){
-	                //echo "11";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
 	            }
 	            else if ($userCode[0]['Dept'] = "EDITOR"){
-	                //echo "12";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='INPUT' or DeptName = 'OUTPUT ' or DeptName = 'EDITOR'";
 	            }
 	            else if ($userCode[0]['Dept'] == "GOVT. SALES"){
-	                //echo "13";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='GOVT. SALES' or DeptName = 'MP SALES' or DeptName = 'CITY SALES' or DeptName = 'MARKETING' OR DeptName = 'EMERGING MARKETING'";
 	            }
 	            else if ($userCode[0]['Dept'] == "COO"){
-	                //echo "14";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl ";
 	            }
 	            else if($userCode[0]['Dept'] == 'HUMAN RESOURCE'){
-	                //echo "15";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
 	            }
 	            else{
-	                //echo "16";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
 	            }
 	        }
 	        else if($userCode[0]['code'] == "C"){
-	            //echo "17";
 	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
 	        }
 	        else if ($userCode[0]['Dept'] == "MD" || $userCode[0]['Dept'] == "Chairman"){
-	            //echo "18";
 	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='CEO'";
 	        }
 	        
+	        $this->db->select('Dept');
+	        $userDept = $this->db->get_where('LoginKra',array('EmpCode'=>$is_valid_token['data']->ecode))->result_array();
+	        
 	        $result = $this->db->query($cmd)->result_array();
+	        
+	        foreach($result as $r){
+	            if($r['DeptName'] == $userDept[0]['Dept']){
+	                $result[0]['defaultDept'] = $r['id'];
+	            }
+	        }
 	        $this->response($result, 200);
 	    }
     }
+    
+//     function userListDept_post(){
+//         $is_valid_token = $this->authorization_token->validateToken();
+//         if(!empty($is_valid_token) && $is_valid_token['status'] === true){
+            
+//             print_r($this->post());
+            
+//             If (code = "E") Then
+//             If (code2 = "HR") Then
+//             cmd = New SqlCommand("Select EmpCode,Empcode + '--'+ Name as Name   from LoginKRA where Dept = '" & ddlDept.Text & "'and (code = 'H' or code = 'E' or code = 'HR' or Code = 'HH' or code<>'NA')  order by EmpCode", conn)
+//             Else
+//             cmd = New SqlCommand("Select EmpCode,Empcode + '--'+ Name as Name  from LoginKRA where EmpCode = '" & cookies & "' and  code<>'NA' order by EmpCode", conn)
+//             End If
+//             If cookies = "SBMMPL-00517" Then
+//             cmd = New SqlCommand("Select EmpCode,Empcode + '--'+ Name as Name  from LoginKRA where Dept = '" & ddlDept.Text & "' and  code<>'NA' order by EmpCode", conn)
+//             End If
+//             If cookies = "SBMMPL-00665" Then
+//             cmd = New SqlCommand("Select EmpCode,Name + '--'+ Empcode as Name  from LoginKRA where EmpCode = '" & cookies & "' and  code<>'NA'  Union Select EmpCode,Name + '--'+ Empcode as Name   from LoginKRA where dept='MARKETING' and code2 ='mon'", conn)
+//             End If
+//             If (cookies = "SBMMPL-00175") Then
+            
+//             If ddlDept.Text = "OTHERS" Then
+//             cmd = New SqlCommand("Select EmpCode,Name + '--' + Empcode as Name  from LoginKRA where EmpCode = '" & cookies & "' and  code<>'NA'", conn)
+//             ElseIf ddlDept.Text = "MARKETING " Then
+//             cmd = New SqlCommand("Select EmpCode,Name + '--' + Empcode as Name  from LoginKRA where report1 = '" & cookies & "' and  code<>'NA'", conn)
+            
+//             End If
+            
+//             End If
+//             If (cookies = "SBMMPL-00590") Then
+            
+//             cmd = New SqlCommand("Select EmpCode,Name + '--' + Empcode as Name  from LoginKRA where report1 = '" & cookies & "' and  code<>'NA' Union Select EmpCode,Name + '--' + Empcode as Name  from LoginKRA where EmpCode = '" & cookies & "' and  code<>'NA'", conn)
+            
+//             End If
+//             If (cookies = "SBMMPL-01000") Then
+            
+//             cmd = New SqlCommand("Select EmpCode,Name + '--' + Empcode as Name  from LoginKRA where report1 = '" & cookies & "' and  code<>'NA' Union Select EmpCode,Name + '--' + Empcode as Name  from LoginKRA where EmpCode = '" & cookies & "' and  code<>'NA'", conn)
+            
+//             End If
+            
+//             ElseIf (code = "H") Then
+//             If (dept = "GRAPHICS/ PROMO ") Then
+//             cmd = New SqlCommand("Select EmpCode,Empcode + '--'+ Name as Name from LoginKRA where EmpCode = '" & cookies & "' and  code<>'NA' order by EmpCode", conn)
+//             ElseIf (dept = "EDITORIAL") Then
+//             cmd = New SqlCommand("Select EmpCode,Empcode + '--'+ Name as Name from LoginKRA where EmpCode = '" & cookies & "' and  code<>'NA' order by EmpCode", conn)
+//             ElseIf (dept = "EDITOR") Then
+//             cmd = New SqlCommand("Select EmpCode,Empcode + '--'+ Name as Name from LoginKRA where Dept = '" & ddlDept.Text & "' and  code<>'NA' and EmpCOde<>'assign' order by EmpCode", conn)
+//             Else
+//             cmd = New SqlCommand("Select EmpCode,Empcode + '--'+ Name as Name from LoginKRA where Dept = '" & ddlDept.Text & "' and  code<>'NA' order by EmpCode", conn)
+//             End If
+//             ElseIf (code = "C") Then
+//             If (ddlDept.Text = "GRAPHICS/ PROMO ") Then
+//             cmd = New SqlCommand("Select EmpCode,Empcode + '--'+ Name as Name from LoginKRA where Dept = '" & ddlDept.Text & "' and (code = 'HH' or  code<>'NA') order by EmpCode", conn)
+//             ElseIf (ddlDept.Text = "OTHERS") Then
+//             cmd = New SqlCommand("Select EmpCode,Empcode + '--'+ Name as Name from LoginKRA where Dept = '" & ddlDept.Text & "' and (code = 'E' or  code<>'NA') order by EmpCode", conn)
+//             Else
+//             cmd = New SqlCommand("Select EmpCode,Empcode + '--'+ Name as Name from LoginKRA where Dept = '" & ddlDept.Text & "' and (code = 'H' or code ='HR' or  code<>'NA') order by EmpCode", conn)
+//             End If
+            
+//             ElseIf (code = "CH") Then
+//             cmd = New SqlCommand("Select EmpCode,Empcode + '--'+ Name as Name from LoginKRA where Dept = '" & ddlDept.Text & "' and code<>'NA' order by EmpCode", conn)
+//             End If
+            
+            
+            
+            
+            
+//         } else {
+//             $message = ['status' => FALSE,'message' => $is_valid_token['message'] ];
+//             $this->response($message, 404);
+//         }
+//     }
     
     function NhfhList_get(){
         $is_valid_token = $this->authorization_token->validateToken();
         if(!empty($is_valid_token) && $is_valid_token['status'] === true){
             
-            $result = $this->db2->query("Select convert(varchar(50),HDate,103) +' ('+ Description +')' as name,convert(varchar(10),HDate,103) as id from NHFHList where HDate < GETDATE() and HDate not in (select date1  from NHFHDetail where EmpCode = '".$is_valid_token['data']->ecode."' and status <> 'X') and year(hdate)='2020'")->result_array();
+            $result = $this->db->query("Select convert(varchar(50),HDate,103) +' ('+ Description +')' as name,convert(varchar(10),HDate,103) as id from NHFHList where HDate < GETDATE() and HDate not in (select date1  from NHFHDetail where EmpCode = '".$is_valid_token['data']->ecode."' and status <> 'X') and year(hdate)='2020'")->result_array();
             if(count($result)>0){
                 $this->response($result,200);
             } else {

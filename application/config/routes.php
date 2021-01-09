@@ -13,6 +13,8 @@ $route['user-attendance/date'] = 'Emp_ctrl/Attendance';
 $route['user-department'] = 'Authctrl/user_department';
 $route['user-supervised'] = 'Authctrl/user_list';
 
+$route['dept-users'] = "AuthCtrl/userListDept"; 
+
 $route['user-nhfh-duty'] = 'Emp_ctrl/nhfh';
 $route['user-nhfh-avail'] = 'Emp_ctrl/nhfh_avail';
 $route['user-half-day-request'] = 'Emp_ctrl/halfDayRequest';
