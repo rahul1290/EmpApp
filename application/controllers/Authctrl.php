@@ -200,76 +200,75 @@ class Authctrl extends REST_Controller {
 	        
 	        if ($userCode[0]['code'] == "E"){
 	            if ($userCode[0]['code2'] == "HR"){
-	                echo "1";
+	                //echo "1";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
 	            } else {
 	                $cmd = "Select Distinct DeptName,ROW_NUMBER() OVER (ORDER BY DeptName) id from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
 	            }
 	            if($ecode == "SBMMPL-00665"){
-	                echo "3";
+	                //echo "3";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' ";
 	            }
 	            if($ecode == "SBMMPL-00695" || $ecode == "SBMMPL-00782"){
-	                echo "4";
+	                //echo "4";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
 	            }
 	            if($ecode == "SBMMPL-00175"){
-	                echo "5";
+	                //echo "5";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' union Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='Marketing'  ";
 	            }
 	        }
 	        else if($userCode[0]['code'] == 'H'){
 	            if ($userCode[0]['Dept'] == "GRAPHICS/ PROMO "){
-	                echo "6";
+	                //echo "6";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
 	            }
 	            else if ($userCode[0]['Dept'] == "OUTPUT " And $userCode[0]['code2'] == "H"){
-	                echo "7";
+	                //echo "7";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' or DeptName = 'GRAPHICS/ PROMO ' or DeptName = 'SOCIAL MEDIA'";
 	            }
 	            else if ($userCode[0]['Dept'] == "EDITORIAL" And $userCode[0]['code2'] == "H"){
-	                echo "8";
-	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' or DeptName = 'GRAPHICS/ PROMO ' or DeptName = 'OUTPUT ' or DeptName = 'SOCIAL MEDIA'";
+	                $cmd = "Select Distinct DeptName,ROW_NUMBER() OVER (ORDER BY DeptName) id from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' or DeptName = 'GRAPHICS/ PROMO ' or DeptName = 'OUTPUT ' or DeptName = 'SOCIAL MEDIA'";
 	            }
 	            else if ($userCode[0]['Dept'] == "OUTPUT " And $userCode[0]['code2'] == "E"){
-	                echo "9";
+	                //echo "9";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
 	            }
 	            else if ($userCode[0]['Dept'] == "CITY SALES"){
-	                echo "10";
+	                //echo "10";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."' or DeptName = 'EMERGING MARKETING'";
 	            }
 	            else if ($userCode[0]['Dept'] == "FINANCE"){
-	                echo "11";
+	                //echo "11";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
 	            }
 	            else if ($userCode[0]['Dept'] = "EDITOR"){
-	                echo "12";
+	                //echo "12";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='INPUT' or DeptName = 'OUTPUT ' or DeptName = 'EDITOR'";
 	            }
 	            else if ($userCode[0]['Dept'] == "GOVT. SALES"){
-	                echo "13";
+	                //echo "13";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='GOVT. SALES' or DeptName = 'MP SALES' or DeptName = 'CITY SALES' or DeptName = 'MARKETING' OR DeptName = 'EMERGING MARKETING'";
 	            }
 	            else if ($userCode[0]['Dept'] == "COO"){
-	                echo "14";
+	                //echo "14";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl ";
 	            }
 	            else if($userCode[0]['Dept'] == 'HUMAN RESOURCE'){
-	                echo "15";
+	                //echo "15";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
 	            }
 	            else{
-	                echo "16";
+	                //echo "16";
 	                $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='".$userCode[0]['Dept']."'";
 	            }
 	        }
 	        else if($userCode[0]['code'] == "C"){
-	            echo "17";
+	            //echo "17";
 	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl";
 	        }
 	        else if ($userCode[0]['Dept'] == "MD" || $userCode[0]['Dept'] == "Chairman"){
-	            echo "18";
+	            //echo "18";
 	            $cmd = "Select Distinct DeptName from ITDDeptCodeTbl where DeptName ='CEO'";
 	        }
 	        
